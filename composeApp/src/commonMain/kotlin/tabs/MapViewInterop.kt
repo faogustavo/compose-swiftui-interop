@@ -29,14 +29,19 @@ import data.KMPCity
 import data.KMPCoordinates
 import data.KMPMapMarker
 import datasource.LocalMapDataDatasource
+import ext.observeAsState
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import native.NativeMapView
 import nav.TopAppBarProvider
+import org.brightify.hyperdrive.multiplatformx.BaseViewModel
+import org.brightify.hyperdrive.multiplatformx.ViewModel
+import org.brightify.hyperdrive.multiplatformx.property.asFlow
 import screen.LocationDetails
 
 object MapViewInterop : Tab, TopAppBarProvider {
@@ -74,7 +79,7 @@ object MapViewInterop : Tab, TopAppBarProvider {
     override fun TopBar() {
         val screenModel = screenModel
 
-        val allCities by screenModel.allCities.collectAsState()
+        val allCities by screenModel.observableCities.observeAsState()
         var menuOpen by remember { mutableStateOf(false) }
 
         TopAppBar(
@@ -107,40 +112,47 @@ object MapViewInterop : Tab, TopAppBarProvider {
     }
 }
 
-class MapViewScreenModel : ScreenModel {
-    private val _allCities = MutableStateFlow<List<KMPCity>>(emptyList())
-    private val _pins = MutableStateFlow<List<KMPMapMarker>>(emptyList())
-    private val _currentCoordinates = MutableSharedFlow<KMPCoordinates>(
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
-    )
+@ViewModel
+class MapViewScreenModel : BaseViewModel(), ScreenModel {
     private val _selectedMarker = MutableSharedFlow<KMPMapMarker>(
         extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
-
-    val allCities = _allCities.asStateFlow()
-    val pins = _pins.asStateFlow()
     val selectedMarker = _selectedMarker.asSharedFlow()
-    val currentCoordinates = _currentCoordinates.asSharedFlow()
+
+    val observableCoordinates by observe(::coordinates)
+    var coordinates: KMPCoordinates? by published(null)
+
+    val observableCities by observe(::cities)
+    var cities: List<KMPCity> by published(emptyList())
+        private set
+
+    val observableMarkers by observe(::markers)
+    var markers: List<KMPMapMarker> by published(emptyList())
+        private set
 
     init {
         screenModelScope.launch {
             val citiesResult = LocalMapDataDatasource.cities()
             val currentCity = citiesResult.firstOrNull()
 
-            _allCities.value = citiesResult
+            cities = citiesResult
             if (currentCity != null) {
-                _currentCoordinates.tryEmit(currentCity.coordinates)
-                _pins.value = LocalMapDataDatasource.allData(currentCity)
+                coordinates = currentCity.coordinates
+                markers = LocalMapDataDatasource.allData(currentCity)
+            }
+        }
+        screenModelScope.launch {
+            observableCoordinates.asFlow().collect {
+                println("New coordinates: $it")
             }
         }
     }
 
     fun goToCity(city: KMPCity) {
-        _currentCoordinates.tryEmit(city.coordinates)
+        coordinates = city.coordinates
         screenModelScope.launch {
-            _pins.value = LocalMapDataDatasource.allData(city)
+            markers = LocalMapDataDatasource.allData(city)
         }
     }
 

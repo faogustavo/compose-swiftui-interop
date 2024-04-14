@@ -11,15 +11,31 @@ import ComposeApp
 import MapKit
 
 struct NativeMapView : View {
-    var screenState: MapViewScreenModel
+    @ObservedObject var screenState: MapViewScreenModel
+    private let position: Binding<MapCameraPosition>
     
-    @State private var pins: [KMPMapMarker] = []
-    @State private var position: MapCameraPosition = .automatic
+    init(screenState: MapViewScreenModel) {
+        self.screenState = screenState
+        self.position = Binding(
+            get: {
+                guard let coordinates = screenState.coordinates else { return .automatic }
+                return .region(
+                    MKCoordinateRegion(
+                        center: CLLocationCoordinate2D(latitude: coordinates.lat, longitude: coordinates.lng),
+                        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+                    )
+                )
+            }, set: { newValue, _ in
+                guard let region = newValue.region else { return }
+                screenState.coordinates = KMPCoordinates(lat: region.center.latitude, lng: region.center.longitude)
+            }
+        )
+    }
     
     var body: some View {
         MapReader { reader in
-            Map(position: $position) {
-                ForEach(pins) { (pin) in
+            Map(position: position) {
+                ForEach(self.screenState.markers) { (pin) in
                     Annotation(
                         pin.title,
                         coordinate: CLLocationCoordinate2D(
@@ -43,30 +59,8 @@ struct NativeMapView : View {
                 MapScaleView()
             }
         }
-        .task { await collectCoordinates() }
-        .task { await collectPins() }
-    }
-    
-    private func collectCoordinates() async {
-        for await coordinates in self.screenState.currentCoordinates {
-            withAnimation {
-                position = .region(
-                    MKCoordinateRegion(
-                        center: CLLocationCoordinate2D(latitude: coordinates.lat, longitude: coordinates.lng),
-                        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-                    )
-                )
-            }
-        }
-    }
-    
-    private func collectPins() async {
-        for await pins in self.screenState.pins {
-            self.pins = pins
-        }
     }
 }
 
-extension KMPMapMarker : Identifiable {
-    
-}
+extension KMPMapMarker : Identifiable {}
+

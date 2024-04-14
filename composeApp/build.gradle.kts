@@ -1,4 +1,5 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 
 plugins {
     alias(libs.plugins.androidApplication)
@@ -6,6 +7,7 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.skie)
     alias(libs.plugins.maps)
+//    alias(libs.plugins.hyperdrive)
 }
 
 kotlin {
@@ -25,6 +27,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+            export(libs.hyperdrive.multiplatformX)
         }
     }
 
@@ -55,6 +58,7 @@ kotlin {
             implementation(libs.coil.compose)
 
             implementation(libs.ktor.core)
+            api(libs.hyperdrive.multiplatformX)
         }
 
         iosMain.dependencies {
@@ -108,5 +112,4 @@ android {
         debugImplementation(libs.compose.ui.tooling)
     }
 }
-
 

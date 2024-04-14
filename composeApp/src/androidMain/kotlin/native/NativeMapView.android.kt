@@ -7,8 +7,6 @@ import android.graphics.Paint
 import android.graphics.Path
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -22,21 +20,23 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import data.KMPCoordinates
+import effect.ObservableEffect
+import ext.observeAsState
 import tabs.MapViewScreenModel
 
 @Composable
 actual fun NativeMapView(modifier: Modifier, screenModel: MapViewScreenModel) {
-    val pins by screenModel.pins.collectAsState()
+    val pins by screenModel.observableMarkers.observeAsState()
 
     val cameraPosition = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(0.0, 0.0), 13f)
     }
 
-    LaunchedEffect(Unit) {
-        screenModel.currentCoordinates.collect { currentPos ->
-            cameraPosition.position =
-                CameraPosition.fromLatLngZoom(currentPos.toLatLng(), 13f)
-        }
+    ObservableEffect(screenModel.observableCoordinates) { _, newValue ->
+        if (newValue == null) return@ObservableEffect
+
+        cameraPosition.position =
+            CameraPosition.fromLatLngZoom(newValue.toLatLng(), 13f)
     }
 
     GoogleMap(

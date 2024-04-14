@@ -8,9 +8,10 @@ compose-plugin = "1.6.0"
 junit = "4.13.2"
 kotlin = "1.9.22"
 voyager = "1.0.0"
-coil="3.0.0-alpha06"
+coil = "3.0.0-alpha06"
 ktor = "2.3.9"
 agp = "8.2.0"
+hyperdrive = "0.1.148"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -38,9 +39,12 @@ ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "kto
 maps-compose = { module = "com.google.maps.android:maps-compose", version = "2.11.4" }
 maps-playService = { module = "com.google.android.gms:play-services-maps", version = "18.2.0" }
 
+hyperdrive-multiplatformX = { module = "org.brightify.hyperdrive:multiplatformx-api", version.ref = "hyperdrive" }
+
 [plugins]
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 skie = { id = "co.touchlab.skie", version = "0.6.2" }
 maps = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version = "2.0.1" }
+hyperdrive = { id = "org.brightify.hyperdrive", version.ref = "hyperdrive" }
