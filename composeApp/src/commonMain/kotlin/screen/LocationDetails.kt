@@ -86,7 +86,7 @@ class LocationDetails(private val marker: KMPMapMarker) : Screen {
                 Row(modifier = Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.End) {
                     IconButton(onClick = { bottomNav.hide() }) {
                         Icon(
-                            modifier = Modifier.size(48.dp),
+                            modifier = Modifier.size(32.dp),
                             imageVector = Icons.Default.Close,
                             contentDescription = "Close Button",
                             tint = Color.White,

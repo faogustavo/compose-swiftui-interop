@@ -25,3 +25,4 @@ Swift:
 3. For this example, I'm considering to have on screen fully native that consumes a shared state, and it's embedded in Compose
    1. For the sake of simplicity, the state is stored in the [MapViewScreenModel](composeApp/src/commonMain/kotlin/tabs/MapViewInterop.kt#L105)
    2. This ViewModel collect the state with SKIE in the [NativeMapView](iosApp/iosApp/NativeMapView.swift#L50)
+4. Added the Android counterpart just to check how a more "Swift friendly" API will work on i

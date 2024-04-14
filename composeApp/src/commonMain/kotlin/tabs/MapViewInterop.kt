@@ -91,7 +91,12 @@ object MapViewInterop : Tab, TopAppBarProvider {
                     onDismissRequest = { menuOpen = false },
                     content = {
                         allCities.forEach { city ->
-                            DropdownMenuItem(onClick = { screenModel.goToCity(city) }) {
+                            DropdownMenuItem(
+                                onClick = {
+                                    screenModel.goToCity(city)
+                                    menuOpen = false
+                                }
+                            ) {
                                 Text(city.name)
                             }
                         }
@@ -103,15 +108,21 @@ object MapViewInterop : Tab, TopAppBarProvider {
 }
 
 class MapViewScreenModel : ScreenModel {
-    private val _currentCoordinates = MutableStateFlow(KMPCoordinates(55.637848, 12.580427))
     private val _allCities = MutableStateFlow<List<KMPCity>>(emptyList())
     private val _pins = MutableStateFlow<List<KMPMapMarker>>(emptyList())
-    private val _selectedMarker = MutableSharedFlow<KMPMapMarker>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    private val _currentCoordinates = MutableSharedFlow<KMPCoordinates>(
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
+    private val _selectedMarker = MutableSharedFlow<KMPMapMarker>(
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
 
-    val currentCoordinates = _currentCoordinates.asStateFlow()
     val allCities = _allCities.asStateFlow()
     val pins = _pins.asStateFlow()
     val selectedMarker = _selectedMarker.asSharedFlow()
+    val currentCoordinates = _currentCoordinates.asSharedFlow()
 
     init {
         screenModelScope.launch {
@@ -120,16 +131,15 @@ class MapViewScreenModel : ScreenModel {
 
             _allCities.value = citiesResult
             if (currentCity != null) {
-                _currentCoordinates.value = currentCity.coordinates
+                _currentCoordinates.tryEmit(currentCity.coordinates)
                 _pins.value = LocalMapDataDatasource.allData(currentCity)
             }
         }
     }
 
     fun goToCity(city: KMPCity) {
-        _currentCoordinates.value = city.coordinates
+        _currentCoordinates.tryEmit(city.coordinates)
         screenModelScope.launch {
-            _pins.value = emptyList()
             _pins.value = LocalMapDataDatasource.allData(city)
         }
     }
