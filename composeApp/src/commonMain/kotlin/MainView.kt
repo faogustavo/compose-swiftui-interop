@@ -16,9 +16,10 @@ import cafe.adriel.voyager.navigator.tab.TabNavigator
 import nav.TopAppBarProvider
 import tabs.HomeTab
 import tabs.MapViewInterop
+import vm.RootViewModel
 
 @Composable
-fun MainView() {
+fun MainView(rootViewModel: RootViewModel) {
     MaterialTheme {
         BottomSheetNavigator {
             TabNavigator(HomeTab) {
@@ -32,7 +33,7 @@ fun MainView() {
                     bottomBar = {
                         BottomNavigation {
                             TabNavigationItem(HomeTab)
-                            TabNavigationItem(MapViewInterop)
+                            TabNavigationItem(MapViewInterop(rootViewModel.mapViewModel))
                         }
                     }
                 )

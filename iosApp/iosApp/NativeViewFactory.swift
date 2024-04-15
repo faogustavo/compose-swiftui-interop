@@ -12,8 +12,8 @@ import ComposeApp
 class iOSNativeViewFactory : NativeViewFactory {
     static var shared = iOSNativeViewFactory()
     
-    func createMapView(screenState: MapViewScreenModel) -> UIViewController {
-        let view = NativeMapView(screenState: screenState)
+    func createMapView(viewModel: MapViewViewModel) -> UIViewController {
+        let view = NativeMapView(viewModel: viewModel)
         return UIHostingController(rootView: view)
     }
 }

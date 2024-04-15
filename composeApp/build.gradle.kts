@@ -51,7 +51,6 @@ kotlin {
             implementation(libs.voyager.transitions)
             implementation(libs.voyager.tabNavigator)
             implementation(libs.voyager.bottomSheetNavigator)
-            implementation(libs.voyager.model)
 
             implementation(libs.coil.core)
             implementation(libs.coil.ktor)

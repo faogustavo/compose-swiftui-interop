@@ -21,6 +21,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,20 +40,25 @@ import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter.State
 import coil3.compose.rememberAsyncImagePainter
 import data.KMPMapMarker
+import vm.DetailsViewModel
 
-class LocationDetails(private val marker: KMPMapMarker) : Screen {
+class LocationDetails(private val viewModel: DetailsViewModel) : Screen {
     @Composable
     override fun Content() {
         Column {
             Header()
             Body()
         }
+
+        DisposableEffect(Unit) {
+            onDispose { viewModel.onDetailsDismissed() }
+        }
     }
 
     @Composable
     private fun Header() {
         val bottomNav = LocalBottomSheetNavigator.current
-        val image = rememberAsyncImagePainter(marker.image)
+        val image = rememberAsyncImagePainter(viewModel.marker.image)
 
         Box(modifier = Modifier.fillMaxWidth().height(250.dp)) {
             Image(
@@ -95,7 +101,7 @@ class LocationDetails(private val marker: KMPMapMarker) : Screen {
                 }
 
                 Text(
-                    marker.title,
+                    viewModel.marker.title,
                     color = Color.White,
                     maxLines = 1,
                     style = MaterialTheme.typography.h4,
@@ -114,7 +120,7 @@ class LocationDetails(private val marker: KMPMapMarker) : Screen {
                 .padding(horizontal = 16.dp)
         ) {
             Text(
-                "\t ${marker.description}",
+                "\t ${viewModel.marker.description}",
                 modifier = Modifier,
                 textAlign = TextAlign.Justify
             )

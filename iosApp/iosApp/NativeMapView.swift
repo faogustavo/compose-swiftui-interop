@@ -11,14 +11,14 @@ import ComposeApp
 import MapKit
 
 struct NativeMapView : View {
-    @ObservedObject var screenState: MapViewScreenModel
+    @ObservedObject var viewModel: MapViewViewModel
     private let position: Binding<MapCameraPosition>
     
-    init(screenState: MapViewScreenModel) {
-        self.screenState = screenState
+    init(viewModel: MapViewViewModel) {
+        self.viewModel = viewModel
         self.position = Binding(
             get: {
-                guard let coordinates = screenState.coordinates else { return .automatic }
+                guard let coordinates = viewModel.coordinates else { return .automatic }
                 return .region(
                     MKCoordinateRegion(
                         center: CLLocationCoordinate2D(latitude: coordinates.lat, longitude: coordinates.lng),
@@ -27,7 +27,7 @@ struct NativeMapView : View {
                 )
             }, set: { newValue, _ in
                 guard let region = newValue.region else { return }
-                screenState.coordinates = KMPCoordinates(lat: region.center.latitude, lng: region.center.longitude)
+                viewModel.coordinates = KMPCoordinates(lat: region.center.latitude, lng: region.center.longitude)
             }
         )
     }
@@ -35,7 +35,7 @@ struct NativeMapView : View {
     var body: some View {
         MapReader { reader in
             Map(position: position) {
-                ForEach(self.screenState.markers) { (pin) in
+                ForEach(self.viewModel.markers) { (pin) in
                     Annotation(
                         pin.title,
                         coordinate: CLLocationCoordinate2D(
@@ -49,7 +49,7 @@ struct NativeMapView : View {
                                 .stroke(.secondary, lineWidth: 2)
                             Text(pin.monogram).padding(8)
                         }.onTapGesture {
-                            self.screenState.onMarkerClick(marker: pin)
+                            self.viewModel.onMarkerClick(marker: pin)
                         }
                     }
                 }

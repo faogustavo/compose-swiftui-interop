@@ -22,17 +22,17 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import data.KMPCoordinates
 import effect.ObservableEffect
 import ext.observeAsState
-import tabs.MapViewScreenModel
+import vm.MapViewViewModel
 
 @Composable
-actual fun NativeMapView(modifier: Modifier, screenModel: MapViewScreenModel) {
-    val pins by screenModel.observableMarkers.observeAsState()
+actual fun NativeMapView(modifier: Modifier, viewModel: MapViewViewModel) {
+    val pins by viewModel.observableMarkers.observeAsState()
 
     val cameraPosition = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(0.0, 0.0), 13f)
     }
 
-    ObservableEffect(screenModel.observableCoordinates) { _, newValue ->
+    ObservableEffect(viewModel.observableCoordinates) { _, newValue ->
         if (newValue == null) return@ObservableEffect
 
         cameraPosition.position =
@@ -49,7 +49,7 @@ actual fun NativeMapView(modifier: Modifier, screenModel: MapViewScreenModel) {
                 title = pin.title,
                 icon = setCustomMapIcon(pin.monogram),
                 onClick = {
-                    screenModel.onMarkerClick(pin)
+                    viewModel.onMarkerClick(pin)
                     true
                 }
             )

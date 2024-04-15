@@ -5,19 +5,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.interop.UIKitViewController
 import composition.LocalNativeViewFactory
 import kotlinx.cinterop.ExperimentalForeignApi
-import tabs.MapViewScreenModel
+import vm.MapViewViewModel
 
 @OptIn(ExperimentalForeignApi::class)
 @Composable
 actual fun NativeMapView(
     modifier: Modifier,
-    screenModel: MapViewScreenModel
+    viewModel: MapViewViewModel,
 ) {
     val factory = LocalNativeViewFactory.current
 
     UIKitViewController(
         modifier = modifier,
-        factory = { factory.createMapView(screenModel) },
+        factory = { factory.createMapView(viewModel) },
         update = {},
     )
 }

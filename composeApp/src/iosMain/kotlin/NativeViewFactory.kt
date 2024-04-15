@@ -1,8 +1,8 @@
 import platform.UIKit.UIViewController
-import tabs.MapViewScreenModel
+import vm.MapViewViewModel
 
 interface NativeViewFactory {
-    fun createMapView(screenState: MapViewScreenModel): UIViewController
+    fun createMapView(viewModel: MapViewViewModel): UIViewController
 }
 
 
